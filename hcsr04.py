@@ -22,6 +22,8 @@
 """
 A CircuitPython library for the HC-SR04 ultrasonic range sensor.
 
+modified to add timeout while waiting for echo (Jerry Needell 2/26/2018)
+
 The HC-SR04 functions by sending an ultrasonic signal, which is reflected by
 many materials, and then sensing when the signal returns to the sensor. Knowing
 that sound travels through air at 343.2 meters per second
@@ -37,7 +39,7 @@ that sound travels through air at 343.2 meters per second
 import board
 from digitalio import DigitalInOut, DriveMode
 from pulseio import PulseIn
-from time import sleep
+import time
 
 
 class HCSR04:
@@ -55,7 +57,7 @@ class HCSR04:
             except KeyboardInterrupt:
                 pass
     """
-    def __init__(self, trig_pin, echo_pin):
+    def __init__(self, trig_pin, echo_pin,timeout_sec=.1):
         """
         :param trig_pin: The pin on the microcontroller that's connected to the
             ``Trig`` pin on the HC-SR04.
@@ -69,6 +71,7 @@ class HCSR04:
         if isinstance(echo_pin, str):
             echo_pin = getattr(board, echo_pin)
         self.dist_cm = self._dist_two_wire
+        self.timeout_sec=timeout_sec
 
         self.trig = DigitalInOut(trig_pin)
         self.trig.switch_to_output(value=False, drive_mode=DriveMode.PUSH_PULL)
@@ -117,13 +120,15 @@ class HCSR04:
     def _dist_two_wire(self):
         self.echo.clear()  # Discard any previous pulse values
         self.trig.value = 1  # Set trig high
-        sleep(0.00001)  # 10 micro seconds 10/1000/1000
+        time.sleep(0.00001)  # 10 micro seconds 10/1000/1000
         self.trig.value = 0  # Set trig low
-
+        timeout=time.monotonic()
         self.echo.resume()
         while len(self.echo) == 0:
             # Wait for a pulse
-            pass
+            if(time.monotonic()-timeout)>self.timeout_sec:
+                self.echo.pause()
+                return -1
         self.echo.pause()
         if self.echo[0] == 65535:
             return -1
@@ -151,6 +156,6 @@ def test(trig, echo, delay=2):
         try:
             while True:
                 print(sonar.dist_cm())
-                sleep(delay)
+                time.sleep(delay)
         except KeyboardInterrupt:
             pass
