@@ -24,7 +24,11 @@ A CircuitPython library for the HC-SR04 ultrasonic range sensor.
 
 The HC-SR04 functions by sending an ultrasonic signal, which is reflected by
 many materials, and then sensing when the signal returns to the sensor. Knowing
-that sound travels through air at 343.2 meters per second
+that sound travels through dry air at `343.2 meters per second (at 20 °C)
+<https://en.wikipedia.org/wiki/Speed_of_sound>`_, it's pretty straightforward
+to calculate how far away the object is by timing how long the signal took to
+go round-trip and do some simple arithmetic, which is handled for you by this
+library.
 
 .. warning::
 
@@ -32,12 +36,15 @@ that sound travels through air at 343.2 meters per second
     <https://www.adafruit.com/product/2653?q=level%20shifter&>`_ between it
     and your CircuitPython board (which uses 3.3V logic).
 
-* Author(s): Mike Mabey
+* Authors:
+
+  - Mike Mabey
+  - Jerry Needell - modified to add timeout while waiting for echo (2/26/2018)
 """
 import board
 from digitalio import DigitalInOut, DriveMode
 from pulseio import PulseIn
-from time import sleep
+import time
 
 
 class HCSR04:
@@ -55,7 +62,7 @@ class HCSR04:
             except KeyboardInterrupt:
                 pass
     """
-    def __init__(self, trig_pin, echo_pin):
+    def __init__(self, trig_pin, echo_pin, timeout_sec=.1):
         """
         :param trig_pin: The pin on the microcontroller that's connected to the
             ``Trig`` pin on the HC-SR04.
@@ -63,12 +70,16 @@ class HCSR04:
         :param echo_pin: The pin on the microcontroller that's connected to the
             ``Echo`` pin on the HC-SR04.
         :type echo_pin: str or microcontroller.Pin
+        :param float timeout_sec: Max seconds to wait for a response from the
+            sensor before assuming it isn't going to answer. Should *not* be
+            set to less than 0.05 seconds!
         """
         if isinstance(trig_pin, str):
             trig_pin = getattr(board, trig_pin)
         if isinstance(echo_pin, str):
             echo_pin = getattr(board, echo_pin)
         self.dist_cm = self._dist_two_wire
+        self.timeout_sec = timeout_sec
 
         self.trig = DigitalInOut(trig_pin)
         self.trig.switch_to_output(value=False, drive_mode=DriveMode.PUSH_PULL)
@@ -117,13 +128,15 @@ class HCSR04:
     def _dist_two_wire(self):
         self.echo.clear()  # Discard any previous pulse values
         self.trig.value = 1  # Set trig high
-        sleep(0.00001)  # 10 micro seconds 10/1000/1000
+        time.sleep(0.00001)  # 10 micro seconds 10/1000/1000
         self.trig.value = 0  # Set trig low
-
+        timeout = time.monotonic()
         self.echo.resume()
         while len(self.echo) == 0:
             # Wait for a pulse
-            pass
+            if (time.monotonic() - timeout) > self.timeout_sec:
+                self.echo.pause()
+                return -1
         self.echo.pause()
         if self.echo[0] == 65535:
             return -1
@@ -151,6 +164,6 @@ def test(trig, echo, delay=2):
         try:
             while True:
                 print(sonar.dist_cm())
-                sleep(delay)
+                time.sleep(delay)
         except KeyboardInterrupt:
             pass
