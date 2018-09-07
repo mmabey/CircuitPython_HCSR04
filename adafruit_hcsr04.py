@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
+`adafruit_hcsr04`
+====================================================
+
 A CircuitPython library for the HC-SR04 ultrasonic range sensor.
 
 The HC-SR04 functions by sending an ultrasonic signal, which is reflected by

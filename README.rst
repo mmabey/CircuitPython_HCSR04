@@ -17,7 +17,7 @@ Introduction
     :width: 300px
 
 The HC-SR04 is an inexpensive solution for measuring distances using microcontrollers. This library provides a simple
-driver for controlling these sensors from `CircuitPython`_.
+driver for controlling these sensors from CircuitPython.
 
 Dependencies
 =============
