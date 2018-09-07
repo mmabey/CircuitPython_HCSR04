@@ -71,7 +71,7 @@ There are two ways of instantiating a :class:`~hcsr04.HCSR04` object: with or wi
             dir(board)
 
 Without a Context Manager
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 In the example below, we create the :class:`~hcsr04.HCSR04` object directly, get the distance every 2 seconds, then
 de-initialize the device.
@@ -90,7 +90,7 @@ de-initialize the device.
 
 
 With a Context Manager
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 In the example below, we use a context manager (the :any:`with <with>` statement) to create the :class:`~hcsr04.HCSR04`
 instance, again get the distance every 2 seconds, but then the context manager handles de-initializing the device for
