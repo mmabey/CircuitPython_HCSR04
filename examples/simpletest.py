@@ -9,5 +9,4 @@ while True:
         print((sonar.distance,))
     except RuntimeError:
         print("Retrying!")
-        pass
     time.sleep(0.1)
