@@ -1,22 +1,36 @@
-CircuitPython HC-SR04 Driver
-============================
+Introduction
+============
 
-|docs| |version| |ci| |license_type|
+.. image:: https://readthedocs.org/projects/adafruit-circuitpython-hcsr04/badge/?version=latest
+    :target: https://circuitpython.readthedocs.io/projects/hcsr04/en/latest/
+    :alt: Documentation Status
+
+.. image:: https://img.shields.io/discord/327254708534116352.svg
+    :target: https://discord.gg/nBQh6qu
+    :alt: Discord
+
+.. image:: https://travis-ci.org/adafruit/Adafruit_CircuitPython_HCSR04.svg?branch=master
+    :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_HCSR04
+    :alt: Build Status
 
 .. image:: hcsr04.jpg
     :width: 300px
 
 The HC-SR04 is an inexpensive solution for measuring distances using microcontrollers. This library provides a simple
-driver for controlling these sensors from `CircuitPython`_, Adafruit's port of `MicroPython <http://micropython.org/>`_.
+driver for controlling these sensors from CircuitPython.
 
+Dependencies
+=============
+This driver depends on:
 
-Installation
-------------
+* `Adafruit CircuitPython <https://github.com/adafruit/circuitpython>`_
 
-This driver depends on `CircuitPython <https://github.com/adafruit/circuitpython>`_ and is designed for use with an
-HC-SR04 ultrasonic range sensor. You'll also need to ensure all dependencies are available on the CircuitPython
-filesystem. This is easily achieved by downloading
+Please ensure all dependencies are available on the CircuitPython filesystem.
+This is easily achieved by downloading
 `the Adafruit library and driver bundle <https://github.com/adafruit/Adafruit_CircuitPython_Bundle>`_.
+
+Usage Example
+=============
 
 .. warning::
 
@@ -28,10 +42,6 @@ filesystem. This is easily achieved by downloading
 
     If you want to use an HC-SR04 with `MicroPython <http://micropython.org/>`_, I recommend checking out `this library
     <https://github.com/andrey-git/micropython-hcsr04>`_.
-
-
-Quick Start
------------
 
 You'll need to dedicate two pins to communicating with the HC-SR04. The sensor communicates in a very rudimentary
 manner, so it doesn't matter which pins you choose, as long as they're digital IO pins (pins that start with "``D``"
@@ -61,7 +71,7 @@ There are two ways of instantiating a :class:`~hcsr04.HCSR04` object: with or wi
             dir(board)
 
 Without a Context Manager
-^^^^^^^^^^^^^^^^^^^^^^^^^
+-------------------------
 
 In the example below, we create the :class:`~hcsr04.HCSR04` object directly, get the distance every 2 seconds, then
 de-initialize the device.
@@ -80,7 +90,7 @@ de-initialize the device.
 
 
 With a Context Manager
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 In the example below, we use a context manager (the :any:`with <with>` statement) to create the :class:`~hcsr04.HCSR04`
 instance, again get the distance every 2 seconds, but then the context manager handles de-initializing the device for
@@ -98,47 +108,59 @@ us.
             pass
 
 
-API Reference
--------------
-
-.. toctree::
-   :maxdepth: 2
-
-   api
-
-
 Contributing
-------------
+============
 
 Contributions are welcome! Please read our `Code of Conduct
 <https://github.com/adafruit/Adafruit_CircuitPython_HCSR04/blob/master/CODE_OF_CONDUCT.md>`_
 before contributing to help this project stay welcoming.
 
+Building locally
+================
 
-License
--------
+Zip release files
+-----------------
 
-This project is licensed under the `MIT License <https://github.com/mmabey/CircuitPython_HCSR04/blob/master/LICENSE>`_.
+To build this library locally you'll need to install the
+`circuitpython-build-tools <https://github.com/adafruit/circuitpython-build-tools>`_ package.
 
+.. code-block:: shell
 
-.. |docs| image:: https://readthedocs.org/projects/adafruit-soundboard/badge/
-    :alt: Documentation Status
-    :target: `Read the Docs`_
+    python3 -m venv .env
+    source .env/bin/activate
+    pip install circuitpython-build-tools
 
-.. |version| image:: https://img.shields.io/github/release/mmabey/CircuitPython_HCSR04/all.svg
-    :alt: Release Version
-    :target: https://github.com/mmabey/CircuitPython_HCSR04
+Once installed, make sure you are in the virtual environment:
 
-.. |ci| image:: https://travis-ci.org/mmabey/CircuitPython_HCSR04.svg
-    :alt: CI Build Status
-    :target: https://travis-ci.org/mmabey/CircuitPython_HCSR04
+.. code-block:: shell
 
-.. |license_type| image:: https://img.shields.io/github/license/mmabey/CircuitPython_HCSR04.svg
-    :alt: License: MIT
-    :target: `GitHub`_
+    source .env/bin/activate
 
-.. _GitHub: https://github.com/mmabey/CircuitPython_HCSR04
+Then run the build:
 
-.. _CircuitPython: https://github.com/adafruit/circuitpython
+.. code-block:: shell
 
-.. _Read the Docs: http://circuitpython-hcsr04.readthedocs.io/
+    circuitpython-build-bundles --filename_prefix adafruit-circuitpython-hcsr04 --library_location .
+
+Sphinx documentation
+-----------------------
+
+Sphinx is used to build the documentation based on rST files and comments in the code. First,
+install dependencies (feel free to reuse the virtual environment from above):
+
+.. code-block:: shell
+
+    python3 -m venv .env
+    source .env/bin/activate
+    pip install Sphinx sphinx-rtd-theme
+
+Now, once you have the virtual environment activated:
+
+.. code-block:: shell
+
+    cd docs
+    sphinx-build -E -W -b html . _build/html
+
+This will output the documentation to ``docs/_build/html``. Open the index.html in your browser to
+view them. It will also (due to -W) error out on any warning like Travis will. This is a good way to
+locally verify it will pass.

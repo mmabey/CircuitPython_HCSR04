@@ -20,6 +20,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 """
+`adafruit_hcsr04`
+====================================================
+
 A CircuitPython library for the HC-SR04 ultrasonic range sensor.
 
 The HC-SR04 functions by sending an ultrasonic signal, which is reflected by
@@ -44,7 +47,6 @@ library.
 """
 
 import time
-import board
 from digitalio import DigitalInOut, Direction
 
 _USE_PULSEIO = False
@@ -53,6 +55,9 @@ try:
     _USE_PULSEIO = True
 except ImportError:
     pass   # This is OK, we'll try to bitbang it!
+
+__version__ = "0.0.0-auto.0"
+__repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_HCSR04.git"
 
 class HCSR04:
     """Control a HC-SR04 ultrasonic range sensor.
@@ -146,7 +151,7 @@ class HCSR04:
         timestamp = time.monotonic()
         if _USE_PULSEIO:
             self._echo.resume()
-            while len(self._echo) == 0:
+            while not self._echo:
                 # Wait for a pulse
                 if (time.monotonic() - timestamp) > self._timeout:
                     self._echo.pause()
@@ -172,4 +177,4 @@ class HCSR04:
         # positive pulse time, in seconds, times 340 meters/sec, then
         # divided by 2 gives meters. Multiply by 100 for cm
         # 1/1000000 s/us * 340 m/s * 100 cm/m * 2 = 0.017
-        return (pulselen * 0.017)
+        return pulselen * 0.017
