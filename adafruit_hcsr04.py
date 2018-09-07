@@ -143,22 +143,40 @@ class HCSR04:
             return self._dist_two_wire()
 
     def _dist_two_wire(self):
-        self._echo.clear()       # Discard any previous pulse values
+        if _USE_PULSEIO:
+            self._echo.clear()       # Discard any previous pulse values
         self._trig.value = True  # Set trig high
         time.sleep(0.00001)      # 10 micro seconds 10/1000/1000
         self._trig.value = False # Set trig low
+
+        pulselen = None
         timestamp = time.monotonic()
-        self._echo.resume()
-        while len(self._echo) == 0:
-            # Wait for a pulse
-            if (time.monotonic() - timestamp) > self._timeout:
-                self._echo.pause()
-                raise RuntimeError("Timed out")
-        self._echo.pause()
-        if self._echo[0] == 65535:
+        if _USE_PULSEIO:
+            self._echo.resume()
+            while len(self._echo) == 0:
+                # Wait for a pulse
+                if (time.monotonic() - timestamp) > self._timeout:
+                    self._echo.pause()
+                    raise RuntimeError("Timed out")
+            self._echo.pause()
+            pulselen = self._echo[0]
+        else:
+            # OK no hardware pulse support, we'll just do it by hand!
+            # hang out while the pin is low
+            while not self._echo.value:
+                if time.monotonic() - timestamp > self._timeout:
+                    raise RuntimeError("Timed out")
+            timestamp = time.monotonic()
+            # track how long pin is high
+            while self._echo.value:
+                if time.monotonic() - timestamp > self._timeout:
+                    raise RuntimeError("Timed out")
+            pulselen = time.monotonic() - timestamp
+            pulselen *= 1000000 # convert to us to match pulseio
+        if pulselen >= 65535:
             raise RuntimeError("Timed out")
 
         # positive pulse time, in seconds, times 340 meters/sec, then
         # divided by 2 gives meters. Multiply by 100 for cm
         # 1/1000000 s/us * 340 m/s * 100 cm/m * 2 = 0.017
-        return (self._echo[0] * 0.017)
+        return (pulselen * 0.017)
