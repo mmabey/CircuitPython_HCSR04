@@ -81,21 +81,15 @@ class HCSR04:
         """
         :param trigger_pin: The pin on the microcontroller that's connected to the
             ``Trig`` pin on the HC-SR04.
-        :type trig_pin: str or microcontroller.Pin
+        :type trig_pin: microcontroller.Pin
         :param echo_pin: The pin on the microcontroller that's connected to the
             ``Echo`` pin on the HC-SR04.
-        :type echo_pin: str or microcontroller.Pin
+        :type echo_pin: microcontroller.Pin
         :param float timeout: Max seconds to wait for a response from the
             sensor before assuming it isn't going to answer. Should *not* be
             set to less than 0.05 seconds!
         """
-        if isinstance(trigger_pin, str):
-            trigger_pin = getattr(board, trigger_pin)
-        if isinstance(echo_pin, str):
-            echo_pin = getattr(board, echo_pin)
-        self.dist_cm = self._dist_two_wire
         self._timeout = timeout
-
         self._trig = DigitalInOut(trigger_pin)
         self._trig.direction = Direction.OUTPUT
 
@@ -139,8 +133,7 @@ class HCSR04:
         :return: Distance in centimeters.
         :rtype: float
         """
-        if self._trig is not None:
-            return self._dist_two_wire()
+        return self._dist_two_wire()  # at this time we only support 2-wire meausre
 
     def _dist_two_wire(self):
         if _USE_PULSEIO:
