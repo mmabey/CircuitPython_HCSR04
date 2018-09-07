@@ -33,19 +33,26 @@ library.
 .. warning::
 
     The HC-SR04 uses 5V logic, so you will have to use a `level shifter
-    <https://www.adafruit.com/product/2653?q=level%20shifter&>`_ between it
-    and your CircuitPython board (which uses 3.3V logic).
+    <https://www.adafruit.com/product/2653?q=level%20shifter&>`_ or simple
+    voltage divider between it and your CircuitPython board (which uses 3.3V logic)
 
 * Authors:
 
   - Mike Mabey
   - Jerry Needell - modified to add timeout while waiting for echo (2/26/2018)
+  - ladyada - compatible with `distance` property standard, renaming, Pi compat
 """
-import board
-from digitalio import DigitalInOut, DriveMode
-from pulseio import PulseIn
-import time
 
+import time
+import board
+from digitalio import DigitalInOut, Direction
+
+_USE_PULSEIO = False
+try:
+    from pulseio import PulseIn
+    _USE_PULSEIO = True
+except ImportError:
+    pass   # This is OK, we'll try to bitbang it!
 
 class HCSR04:
     """Control a HC-SR04 ultrasonic range sensor.
@@ -54,39 +61,51 @@ class HCSR04:
 
     ::
 
-        with HCSR04(trig, echo) as sonar:
+        import time
+        import board
+
+        import adafruit_hcsr04
+
+        sonar = adafruit_hcsr04.HCSR04(trigger_pin=board.D2, echo_pin=board.D3)
+
+
+        while True:
             try:
-                while True:
-                    print(sonar.dist_cm())
-                    sleep(2)
-            except KeyboardInterrupt:
+                print((sonar.distance,))
+            except RuntimeError:
+                print("Retrying!")
                 pass
+            time.sleep(0.1)
     """
-    def __init__(self, trig_pin, echo_pin, timeout_sec=.1):
+    def __init__(self, trigger_pin, echo_pin, *, timeout=0.1):
         """
-        :param trig_pin: The pin on the microcontroller that's connected to the
+        :param trigger_pin: The pin on the microcontroller that's connected to the
             ``Trig`` pin on the HC-SR04.
         :type trig_pin: str or microcontroller.Pin
         :param echo_pin: The pin on the microcontroller that's connected to the
             ``Echo`` pin on the HC-SR04.
         :type echo_pin: str or microcontroller.Pin
-        :param float timeout_sec: Max seconds to wait for a response from the
+        :param float timeout: Max seconds to wait for a response from the
             sensor before assuming it isn't going to answer. Should *not* be
             set to less than 0.05 seconds!
         """
-        if isinstance(trig_pin, str):
-            trig_pin = getattr(board, trig_pin)
+        if isinstance(trigger_pin, str):
+            trigger_pin = getattr(board, trigger_pin)
         if isinstance(echo_pin, str):
             echo_pin = getattr(board, echo_pin)
         self.dist_cm = self._dist_two_wire
-        self.timeout_sec = timeout_sec
+        self._timeout = timeout
 
-        self.trig = DigitalInOut(trig_pin)
-        self.trig.switch_to_output(value=False, drive_mode=DriveMode.PUSH_PULL)
+        self._trig = DigitalInOut(trigger_pin)
+        self._trig.direction = Direction.OUTPUT
 
-        self.echo = PulseIn(echo_pin)
-        self.echo.pause()
-        self.echo.clear()
+        if _USE_PULSEIO:
+            self._echo = PulseIn(echo_pin)
+            self._echo.pause()
+            self._echo.clear()
+        else:
+            self._echo = DigitalInOut(echo_pin)
+            self._echo.direction = Direction.INPUT
 
     def __enter__(self):
         """Allows for use in context managers."""
@@ -98,10 +117,11 @@ class HCSR04:
 
     def deinit(self):
         """De-initialize the trigger and echo pins."""
-        self.trig.deinit()
-        self.echo.deinit()
+        self._trig.deinit()
+        self._echo.deinit()
 
-    def dist_cm(self):
+    @property
+    def distance(self):
         """Return the distance measured by the sensor in cm.
 
         This is the function that will be called most often in user code. The
@@ -109,7 +129,7 @@ class HCSR04:
         how long between when the sensor sent out an ultrasonic signal and when
         it bounced back and was received again.
 
-        If no signal is received, the return value will be ``-1``. This means
+        If no signal is received, we'll throw a RuntimeError exception. This means
         either the sensor was moving too fast to be pointing in the right
         direction to pick up the ultrasonic signal when it bounced back (less
         likely), or the object off of which the signal bounced is too far away
@@ -119,51 +139,26 @@ class HCSR04:
         :return: Distance in centimeters.
         :rtype: float
         """
-        # This method only exists to make it easier to document. See either
-        # _dist_one_wire or _dist_two_wire for the actual implementation. One
-        # of those two methods will be assigned to be used in place of this
-        # method on instantiation.
-        pass
+        if self._trig is not None:
+            return self._dist_two_wire()
 
     def _dist_two_wire(self):
-        self.echo.clear()  # Discard any previous pulse values
-        self.trig.value = 1  # Set trig high
-        time.sleep(0.00001)  # 10 micro seconds 10/1000/1000
-        self.trig.value = 0  # Set trig low
-        timeout = time.monotonic()
-        self.echo.resume()
-        while len(self.echo) == 0:
+        self._echo.clear()       # Discard any previous pulse values
+        self._trig.value = True  # Set trig high
+        time.sleep(0.00001)      # 10 micro seconds 10/1000/1000
+        self._trig.value = False # Set trig low
+        timestamp = time.monotonic()
+        self._echo.resume()
+        while len(self._echo) == 0:
             # Wait for a pulse
-            if (time.monotonic() - timeout) > self.timeout_sec:
-                self.echo.pause()
-                return -1
-        self.echo.pause()
-        if self.echo[0] == 65535:
-            return -1
+            if (time.monotonic() - timestamp) > self._timeout:
+                self._echo.pause()
+                raise RuntimeError("Timed out")
+        self._echo.pause()
+        if self._echo[0] == 65535:
+            raise RuntimeError("Timed out")
 
-        return (self.echo[0] / 2) / (291 / 10)
-
-
-def test(trig, echo, delay=2):
-    """Create and get distances from an :class:`HCSR04` object.
-
-    This is meant to be helpful when first setting up the HC-SR04. It will get
-    a distance every ``delay`` seconds and print it to standard out.
-
-    :param trig: The pin on the microcontroller that's connected to the
-        ``Trig`` pin on the HC-SR04.
-    :type trig: str or microcontroller.Pin
-    :param echo: The pin on the microcontroller that's connected to the
-        ``Echo`` pin on the HC-SR04.
-    :type echo: str or microcontroller.Pin
-    :param delay: Seconds to wait between triggers.
-    :type delay: int or float
-    :rtype: None
-    """
-    with HCSR04(trig, echo) as sonar:
-        try:
-            while True:
-                print(sonar.dist_cm())
-                time.sleep(delay)
-        except KeyboardInterrupt:
-            pass
+        # positive pulse time, in seconds, times 340 meters/sec, then
+        # divided by 2 gives meters. Multiply by 100 for cm
+        # 1/1000000 s/us * 340 m/s * 100 cm/m * 2 = 0.017
+        return (self._echo[0] * 0.017)
