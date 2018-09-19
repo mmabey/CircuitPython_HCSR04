@@ -56,5 +56,5 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages=['adafruit_hcsr04'],
+    py_modules=['adafruit_hcsr04'],
 )
