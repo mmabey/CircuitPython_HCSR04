@@ -13,8 +13,9 @@ Introduction
     :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_HCSR04
     :alt: Build Status
 
-.. image:: hcsr04.jpg
+.. image:: https://github.com/adafruit/Adafruit_CircuitPython_HCSR04/blob/master/docs/hcsr04.jpg
     :width: 300px
+    :alt: HCSR04
 
 The HC-SR04 is an inexpensive solution for measuring distances using microcontrollers. This library provides a simple
 driver for controlling these sensors from CircuitPython.
