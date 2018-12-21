@@ -9,8 +9,8 @@ Introduction
     :target: https://discord.gg/nBQh6qu
     :alt: Discord
 
-.. image:: https://travis-ci.org/adafruit/Adafruit_CircuitPython_HCSR04.svg?branch=master
-    :target: https://travis-ci.org/adafruit/Adafruit_CircuitPython_HCSR04
+.. image:: https://travis-ci.com/adafruit/Adafruit_CircuitPython_HCSR04.svg?branch=master
+    :target: https://travis-ci.com/adafruit/Adafruit_CircuitPython_HCSR04
     :alt: Build Status
 
 .. image:: https://github.com/adafruit/Adafruit_CircuitPython_HCSR04/blob/master/docs/hcsr04.jpg
