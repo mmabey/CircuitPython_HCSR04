@@ -79,7 +79,7 @@ de-initialize the device.
 
 ::
 
-    from hcsr04 import HCSR04
+    from adafruit_hcsr04 import HCSR04
     sonar = HCSR04(trig, echo)
     try:
         while True:
@@ -99,7 +99,7 @@ us.
 
 ::
 
-    from hcsr04 import HCSR04
+    from adafruit_hcsr04 import HCSR04
     with HCSR04(trig, echo) as sonar:
         try:
             while True:
