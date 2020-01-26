@@ -72,7 +72,7 @@ You'll need to dedicate two pins to communicating with the HC-SR04. The sensor c
 manner, so it doesn't matter which pins you choose, as long as they're digital IO pins (pins that start with "``D``"
 are digital).
 
-There are two ways of instantiating a :class:`~hcsr04.HCSR04` object: with or without using a context manager.
+There are two ways of instantiating a `HCSR04` object: with or without using a context manager.
 
 .. note::
 
@@ -80,12 +80,12 @@ There are two ways of instantiating a :class:`~hcsr04.HCSR04` object: with or wi
     aren't ever active at the same time. Once I have a chance to determine a safe way to do this, I plan to add this as
     a feature to the library.
 
-.. seealso::
+See Also:
 
     `Adafruit's guide on Lifetime and ContextManagers <https://circuitpython.readthedocs.io/en/latest/docs/design_guide.html#lifetime-and-contextmanagers>`_
         Gives more info on using context managers with CircuitPython drivers.
 
-    :any:`board`
+    `board <https://circuitpython.readthedocs.io/en/latest/shared-bindings/board/__init__.html#module-board>`_
         A list of pins available on your device. To view this list, first `get a REPL
         <http://circuitpython.readthedocs.io/en/latest/docs/pyboard/tutorial/repl.html>`_ (the guide linked was written
         for the pyboard, but it still works), then input the following:
@@ -98,7 +98,7 @@ There are two ways of instantiating a :class:`~hcsr04.HCSR04` object: with or wi
 Without a Context Manager
 -------------------------
 
-In the example below, we create the :class:`~hcsr04.HCSR04` object directly, get the distance every 2 seconds, then
+In the example below, we create the `HCSR04` object directly, get the distance every 2 seconds, then
 de-initialize the device.
 
 ::
@@ -117,7 +117,7 @@ de-initialize the device.
 With a Context Manager
 ----------------------
 
-In the example below, we use a context manager (the :any:`with <with>` statement) to create the :class:`~hcsr04.HCSR04`
+In the example below, we use a context manager (the `with <https://docs.python.org/3.4/reference/compound_stmts.html#with>`_ statement) to create the `HCSR04`
 instance, again get the distance every 2 seconds, but then the context manager handles de-initializing the device for
 us.
 
