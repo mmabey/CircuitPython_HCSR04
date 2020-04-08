@@ -34,9 +34,9 @@ source_suffix = ".rst"
 master_doc = "index"
 
 # General information about the project.
-project = u"Adafruit HCSR04 Library"
-copyright = u"2017 Mike Mabey"
-author = u"Mike Mabey"
+project = "Adafruit HCSR04 Library"
+copyright = "2017 Mike Mabey"
+author = "Mike Mabey"
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -126,7 +126,7 @@ latex_documents = [
     (
         master_doc,
         "AdafruitHCSR04Library.tex",
-        u"Adafruit HCSR04 Library Documentation",
+        "Adafruit HCSR04 Library Documentation",
         author,
         "manual",
     ),
@@ -140,7 +140,7 @@ man_pages = [
     (
         master_doc,
         "adafruitHCSR04library",
-        u"Adafruit HCSR04 Library Documentation",
+        "Adafruit HCSR04 Library Documentation",
         [author],
         1,
     )
@@ -155,7 +155,7 @@ texinfo_documents = [
     (
         master_doc,
         "AdafruitHCSR04Library",
-        u"Adafruit HCSR04 Library Documentation",
+        "Adafruit HCSR04 Library Documentation",
         author,
         "AdafruitHCSR04Library",
         "One line description of project.",
