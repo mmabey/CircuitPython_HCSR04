@@ -99,7 +99,7 @@ Without a Context Manager
 -------------------------
 
 In the example below, we create the `HCSR04` object directly, get the distance every 2 seconds, then
-de-initialize the device.
+de-initialize the device. Note trig and echo should come from the `board` module - they aren't just integers.
 
 ::
 
@@ -107,7 +107,7 @@ de-initialize the device.
     sonar = HCSR04(trig, echo)
     try:
         while True:
-            print(sonar.dist_cm())
+            print(sonar.distance)
             sleep(2)
     except KeyboardInterrupt:
         pass
@@ -127,7 +127,7 @@ us.
     with HCSR04(trig, echo) as sonar:
         try:
             while True:
-                print(sonar.dist_cm())
+                print(sonar.distance)
                 sleep(2)
         except KeyboardInterrupt:
             pass
