@@ -90,7 +90,7 @@ See Also:
         <http://circuitpython.readthedocs.io/en/latest/docs/pyboard/tutorial/repl.html>`_ (the guide linked was written
         for the pyboard, but it still works), then input the following:
 
-        ::
+        .. code-block:: python
 
             import board
             dir(board)
@@ -101,7 +101,8 @@ Without a Context Manager
 In the example below, we create the `HCSR04` object directly, get the distance every 2 seconds, then
 de-initialize the device.
 
-::
+.. code-block:: python
+
     import board
     from adafruit_hcsr04 import HCSR04
     sonar = HCSR04(trigger_pin=board.D5, echo_pin=board.D6)
@@ -121,7 +122,8 @@ In the example below, we use a context manager (the `with <https://docs.python.o
 instance, again get the distance every 2 seconds, but then the context manager handles de-initializing the device for
 us.
 
-::
+.. code-block:: python
+
     import board
     from adafruit_hcsr04 import HCSR04
     with HCSR04(trigger_pin=board.D5, echo_pin=board.D6) as sonar:
