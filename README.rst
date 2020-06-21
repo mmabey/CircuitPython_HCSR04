@@ -99,12 +99,12 @@ Without a Context Manager
 -------------------------
 
 In the example below, we create the `HCSR04` object directly, get the distance every 2 seconds, then
-de-initialize the device. Note trig and echo should come from the `board` module - they aren't just integers.
+de-initialize the device.
 
 ::
-
+    import board
     from adafruit_hcsr04 import HCSR04
-    sonar = HCSR04(trig, echo)
+    sonar = HCSR04(trigger_pin=board.D5, echo_pin=board.D6)
     try:
         while True:
             print(sonar.distance)
@@ -122,9 +122,9 @@ instance, again get the distance every 2 seconds, but then the context manager h
 us.
 
 ::
-
+    import board
     from adafruit_hcsr04 import HCSR04
-    with HCSR04(trig, echo) as sonar:
+    with HCSR04(trigger_pin=board.D5, echo_pin=board.D6) as sonar:
         try:
             while True:
                 print(sonar.distance)
